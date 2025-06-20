@@ -5,27 +5,25 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import kioskapp.model.Product;
 
-/**
- * Manages the collection of available products in the kiosk.
- * Provides methods for adding, retrieving, updating, and deleting products.
- */
-public class ProductManager {
-    private ObservableList<Product> products; // Use ObservableList for automatic UI updates
 
-    /**
-     * Constructs a new ProductManager, initializing the product list.
-     */
+    //Handles product data in the kiosk.
+
+public class ProductManager {
+    // List of products (updates UI automatically)
+    private ObservableList<Product> products;
+
+
+     //Sets up an empty product list.
+
     public ProductManager() {
-        products = FXCollections.observableArrayList(); // Initialize as observable
+        products = FXCollections.observableArrayList();
     }
 
-    /**
-     * Adds a new product to the list.
-     *
-     * @param product The product to add.
-     */
+
+     //Adds a new product if the ID is not already used.
+      //@param product The product to add.
     public void addProduct(Product product) {
-        // Prevent adding duplicate product IDs
+        // Check for duplicate ID
         if (products.stream().noneMatch(p -> p.getId().equals(product.getId()))) {
             products.add(product);
         } else {
@@ -33,12 +31,11 @@ public class ProductManager {
         }
     }
 
-    /**
-     * Retrieves a product by its ID.
-     *
-     * @param id The ID of the product to retrieve.
-     * @return The Product object if found, null otherwise.
-     */
+
+     //Finds a product by its ID.
+     //@param id The product ID.
+     //@return The matching product or null.
+
     public Product getProductById(String id) {
         return products.stream()
                 .filter(p -> p.getId().equalsIgnoreCase(id))
@@ -46,49 +43,45 @@ public class ProductManager {
                 .orElse(null);
     }
 
-    /**
-     * Updates an existing product.
-     *
-     * @param updatedProduct The product object with updated details.
-     * @return true if the product was updated, false if not found.
-     */
+
+
+     //Updates a product if it exists.
+     //@param updatedProduct The product with new details.
+     //@return true if updated, false if not found.
+
     public boolean updateProduct(Product updatedProduct) {
         for (int i = 0; i < products.size(); i++) {
             if (products.get(i).getId().equals(updatedProduct.getId())) {
-                products.set(i, updatedProduct); // Replace the old product with the updated one
+                products.set(i, updatedProduct);
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     * Deletes a product by its ID.
-     *
-     * @param id The ID of the product to delete.
-     * @return true if the product was deleted, false if not found.
-     */
+
+      //Removes a product by its ID.
+     //@param id The ID of the product to delete.
+     //@return true if removed, false otherwise.
+
     public boolean deleteProduct(String id) {
         return products.removeIf(p -> p.getId().equals(id));
     }
 
-    /**
-     * Gets the observable list of all products.
-     * This allows UI components to observe changes in the product list.
-     *
-     * @return An ObservableList of Product objects.
-     */
+
+     //Returns all products (UI can watch for changes).
+     //@return The list of products.
+
     public ObservableList<Product> getAllProducts() {
         return products;
     }
 
-    /**
-     * Displays an alert dialog.
-     *
-     * @param type    The type of alert (e.g., WARNING, INFORMATION).
-     * @param title   The title of the alert dialog.
-     * @param message The message content of the alert.
-     */
+
+     //Shows a simple alert box.
+     //@param type    The alert type.
+     //@param title   The alert title.
+     //@param message The alert message.
+
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

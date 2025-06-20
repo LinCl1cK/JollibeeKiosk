@@ -71,7 +71,7 @@ public class CustomerController {
         Label title = new Label("Place Your Order");
         title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #e62429;"); // Jollibee red
 
-        // --- Product Selection Table ---
+        // --- Product Selection Table---
         productsTable = new TableView<>();
         productsTable.setPrefHeight(200);
         productsTable.setItems(productManager.getAllProducts()); // Bind to all available products
@@ -218,8 +218,8 @@ public class CustomerController {
             showAlert(Alert.AlertType.WARNING, "No Product Selected", "Please select a product to add.");
             return;
         }
-
         int quantity;
+
         try {
             quantity = Integer.parseInt(quantityField.getText());
             if (quantity <= 0) {
@@ -292,7 +292,6 @@ public class CustomerController {
         finalOrder.getItems().addAll(currentOrderItems); // Add all items to the new order object
 
         orderManager.placeOrder(finalOrder); // Place the order through the manager
-
         showAlert(Alert.AlertType.INFORMATION, "Order Placed!", "Your order has been placed. Please proceed to the cashier. Your order ID will be provided by the cashier.");
 
         // Clear current order for the next customer

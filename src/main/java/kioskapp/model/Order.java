@@ -3,31 +3,27 @@ package kioskapp.model;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.text.NumberFormat;
 import java.util.Locale;
+import java.text.NumberFormat;
 
 /**
- * Represents a complete customer order, including a list of order items,
- * the time the order was placed, and a unique order ID.
- * It also includes a flag to indicate if it's a priority order.
+ * Represents a customer's order.
  */
 public class Order {
-    private String orderId;
-    private LocalDateTime orderTime;
-    private List<OrderItem> items;
-    private boolean isPriority; // New field for priority
+    private String orderId; // Unique ID for the order
+    private LocalDateTime orderTime; // Time the order was placed
+    private List<OrderItem> items; // List of items in the order
+    private boolean isPriority; // If the order is for priority customer
 
-    /**
-     * Constructs a new Order.
-     *
-     * @param orderId   The unique identifier for this order.
-     * @param isPriority True if this is a priority order (elderly, PWD, pregnant), false otherwise.
-     */
+
+     //Creates a new order.
+     //@param orderId    The order's unique ID.
+     //@param isPriority True if it's a priority order.
+
     public Order(String orderId, boolean isPriority) {
         this.orderId = orderId;
-        this.orderTime = LocalDateTime.now(); // Timestamp when order is created
-        this.items = new LinkedList<>(); // Use LinkedList for efficient additions/removals
+        this.orderTime = LocalDateTime.now();
+        this.items = new LinkedList<>();
         this.isPriority = isPriority;
     }
 
@@ -48,13 +44,12 @@ public class Order {
         return isPriority;
     }
 
-    /**
-     * Adds an OrderItem to the order.
-     *
-     * @param item The OrderItem to add.
-     */
+
+     //Adds an item to the order.
+     //If the item already exists, it adds the quantity.
+     //@param item The item to add.
+
     public void addOrderItem(OrderItem item) {
-        // Check if the product already exists in the order, if so, update quantity
         for (OrderItem existingItem : items) {
             if (existingItem.getProduct().getId().equals(item.getProduct().getId())) {
                 existingItem.setQuantity(existingItem.getQuantity() + item.getQuantity());
@@ -64,32 +59,23 @@ public class Order {
         items.add(item);
     }
 
-    /**
-     * Removes an OrderItem from the order.
-     *
-     * @param item The OrderItem to remove.
-     * @return true if the item was found and removed, false otherwise.
-     */
-    public boolean removeOrderItem(OrderItem item) {
-        return items.remove(item);
-    }
 
-    /**
-     * Calculates the total cost of all items in the order.
-     *
-     * @return The total price of the order.
-     */
+     //Calculates the total price of all items.
+     //@return The total cost.
+
     public double getTotalCost() {
         return items.stream().mapToDouble(OrderItem::getTotalPrice).sum();
     }
 
-    /**
-     * Provides a string representation of the order, including its ID, time, and total cost.
-     * @return Formatted string for the order.
-     */
+
+     //Returns a simple string showing order info.
+     //@return A formatted string.
+
     @Override
     public String toString() {
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("en", "PH")); // Philippines Peso
-        return "Order #" + orderId + " (" + (isPriority ? "PRIORITY" : "NORMAL") + ") - " + currencyFormat.format(getTotalCost()) + " at " + orderTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("en", "PH"));
+        return "Order #" + orderId + " (" + (isPriority ? "PRIORITY" : "NORMAL") + ") - "
+                + currencyFormat.format(getTotalCost()) + " at "
+                + orderTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
     }
 }

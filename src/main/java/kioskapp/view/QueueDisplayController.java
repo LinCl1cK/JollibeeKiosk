@@ -4,11 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -20,112 +16,109 @@ import kioskapp.model.OrderItem;
 
 import java.util.Locale;
 
-/**
- * Controller for the Queue Display View.
- * This separate window shows orders that have been confirmed by the cashier
- * and are now in the "preparation" phase, waiting to be served.
- */
+
+ //This controller manages the display for the queue of orders
+ //that are currently being prepared in the kitchen.
+
 public class QueueDisplayController {
     private OrderManager orderManager;
     private TableView<Order> queueTable;
 
-    /**
-     * Constructs a QueueDisplayController.
-     *
-     * @param orderManager The manager for orders, from which to get the preparation queue.
-     */
+
+     //Constructor receives the OrderManager, which manages all orders.
     public QueueDisplayController(OrderManager orderManager) {
         this.orderManager = orderManager;
     }
 
-    /**
-     * Creates and returns the Scene for the Queue Display.
-     *
-     * @return The Scene object for the queue display interface.
-     */
+
+    //Creates the user interface for the queue display screen.
     public Scene getQueueDisplayScene() {
         VBox root = new VBox(15);
         root.setPadding(new Insets(20));
         root.setAlignment(Pos.TOP_CENTER);
-        root.setStyle("-fx-background-color: #e8f5e9;"); // Light green background
+        root.setStyle("-fx-background-color: #e8f5e9;"); // light green background
 
+        // Page title
         Label title = new Label("Order Preparation Queue");
-        title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #388e3c;"); // Darker green
+        title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #388e3c;");
 
+        // Table setup
         queueTable = new TableView<>();
         queueTable.setPrefHeight(400);
-        queueTable.setItems(orderManager.getPreparingOrders()); // Bind to the observable list
+        queueTable.setItems(orderManager.getPreparingOrders()); // Binds the list of preparing orders
 
+        // Column for order ID
         TableColumn<Order, String> orderIdCol = new TableColumn<>("Order #");
         orderIdCol.setCellValueFactory(new PropertyValueFactory<>("orderId"));
         orderIdCol.setPrefWidth(100);
 
+        // Column for priority status
         TableColumn<Order, String> priorityCol = new TableColumn<>("Priority");
-        priorityCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().isPriority() ? "YES" : "NO"));
+        priorityCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().isPriority() ? "YES" : "NO"));
         priorityCol.setPrefWidth(80);
 
+        // Column for order time
         TableColumn<Order, String> orderTimeCol = new TableColumn<>("Time Placed");
-        orderTimeCol.setCellValueFactory(cellData -> new SimpleStringProperty(
-                cellData.getValue().getOrderTime().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
+        orderTimeCol.setCellValueFactory(data -> new SimpleStringProperty(
+                data.getValue().getOrderTime().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
         ));
         orderTimeCol.setPrefWidth(120);
 
+        // Column for total cost
         TableColumn<Order, Double> totalCostCol = new TableColumn<>("Total (₱)");
         totalCostCol.setCellValueFactory(new PropertyValueFactory<>("totalCost"));
         totalCostCol.setPrefWidth(100);
-        totalCostCol.setCellFactory(tc -> new javafx.scene.control.TableCell<Order, Double>() {
+        totalCostCol.setCellFactory(tc -> new TableCell<>() {
             @Override
             protected void updateItem(Double price, boolean empty) {
                 super.updateItem(price, empty);
-                if (empty) {
-                    setText(null);
-                } else {
-                    setText(String.format(Locale.US, "%.2f", price));
-                }
+                setText(empty ? null : String.format(Locale.US, "%.2f", price));
             }
         });
 
+        // Column for listing item summary
         TableColumn<Order, String> itemsSummaryCol = new TableColumn<>("Items");
-        itemsSummaryCol.setCellValueFactory(cellData -> {
+        itemsSummaryCol.setCellValueFactory(data -> {
             StringBuilder sb = new StringBuilder();
-            for (OrderItem item : cellData.getValue().getItems()) {
+            for (OrderItem item : data.getValue().getItems()) {
                 sb.append(item.getProduct().getName()).append(" (x").append(item.getQuantity()).append("), ");
             }
-            return new SimpleStringProperty(sb.toString().replaceAll(", $", "")); // Remove trailing comma and space
+            return new SimpleStringProperty(sb.toString().replaceAll(", $", ""));
         });
         itemsSummaryCol.setPrefWidth(300);
 
+        // Add all columns to the table
         queueTable.getColumns().addAll(orderIdCol, priorityCol, orderTimeCol, totalCostCol, itemsSummaryCol);
         queueTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Button to simulate completing an order from the queue (e.g., kitchen marks as ready)
+        // Buttons section
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
-        Button markAsReadyButton = new Button("Mark Selected Order as Ready");
-        markAsReadyButton.setStyle("-fx-background-color: #00bcd4; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 10 20; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 2, 2);");
-        markAsReadyButton.setOnMouseEntered(e -> markAsReadyButton.setStyle("-fx-background-color: #0097a7; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 10 20; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 2, 2);"));
-        markAsReadyButton.setOnMouseExited(e -> markAsReadyButton.setStyle("-fx-background-color: #00bcd4; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 10 20; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 2, 2);"));
 
+        // Button: Mark an order as ready (simulate kitchen completion)
+        Button markAsReadyButton = new Button("Mark Selected Order as Ready");
+        markAsReadyButton.setStyle("-fx-background-color: #00bcd4; -fx-text-fill: white; -fx-font-weight: bold;");
+        markAsReadyButton.setOnMouseEntered(e -> markAsReadyButton.setStyle("-fx-background-color: #0097a7; -fx-text-fill: white; -fx-font-weight: bold;"));
+        markAsReadyButton.setOnMouseExited(e -> markAsReadyButton.setStyle("-fx-background-color: #00bcd4; -fx-text-fill: white; -fx-font-weight: bold;"));
         markAsReadyButton.setOnAction(e -> markSelectedOrderAsReady());
 
+        // Button: Close the queue display
         Button backButton = new Button("Close Display");
-        backButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 8 15; -fx-border-radius: 5px; -fx-background-radius: 5px;");
-        backButton.setOnMouseEntered(e -> backButton.setStyle("-fx-background-color: #5a6268; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 8 15; -fx-border-radius: 5px; -fx-background-radius: 5px;"));
-        backButton.setOnMouseExited(e -> backButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 8 15; -fx-border-radius: 5px; -fx-background-radius: 5px;"));
-        backButton.setOnAction(e -> ((Stage)root.getScene().getWindow()).close()); // Close this window
+        backButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold;");
+        backButton.setOnMouseEntered(e -> backButton.setStyle("-fx-background-color: #5a6268; -fx-text-fill: white; -fx-font-weight: bold;"));
+        backButton.setOnMouseExited(e -> backButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold;"));
+        backButton.setOnAction(e -> ((Stage) root.getScene().getWindow()).close());
 
         buttonBox.getChildren().addAll(markAsReadyButton, backButton);
 
-
+        // Add all components to root layout
         root.getChildren().addAll(title, queueTable, buttonBox);
 
-        return new Scene(root, 900, 600); // Larger scene for queue display
+        return new Scene(root, 900, 600); // Set scene size
     }
 
-    /**
-     * Marks the selected order in the table as ready, removing it from the preparation queue.
-     * This simulates the kitchen completing an order.
-     */
+
+    //Handles the event when the kitchen marks an order as completed.
     private void markSelectedOrderAsReady() {
         Order selectedOrder = queueTable.getSelectionModel().getSelectedItem();
         if (selectedOrder == null) {
@@ -133,20 +126,16 @@ public class QueueDisplayController {
             return;
         }
 
-        if (orderManager.completePreparation(selectedOrder.getOrderId())) {
+        boolean success = orderManager.completePreparation(selectedOrder.getOrderId());
+        if (success) {
             showAlert(Alert.AlertType.INFORMATION, "Order Ready!", "Order #" + selectedOrder.getOrderId() + " is now ready for pickup!");
         } else {
-            showAlert(Alert.AlertType.ERROR, "Error", "Could not mark order #" + selectedOrder.getOrderId() + " as ready. It might have already been removed.");
+            showAlert(Alert.AlertType.ERROR, "Error", "Unable to mark the order as ready. It might already be completed.");
         }
     }
 
-    /**
-     * Displays an alert dialog.
-     *
-     * @param type    The type of alert (e.g., WARNING, INFORMATION).
-     * @param title   The title of the alert dialog.
-     * @param message The message content of the alert.
-     */
+
+    //Utility method to show alert dialogs.
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

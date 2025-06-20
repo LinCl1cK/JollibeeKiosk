@@ -36,7 +36,7 @@ public class KioskApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("Jollibee Kiosk System - Main Menu");
+        this.primaryStage.setTitle("Jobilee - Main Menu");
 
         // Initialize managers
         productManager = new ProductManager();
