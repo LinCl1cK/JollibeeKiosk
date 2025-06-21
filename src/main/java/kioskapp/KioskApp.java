@@ -7,6 +7,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 
 import kioskapp.manager.OrderManager;
 import kioskapp.manager.ProductManager;
@@ -16,27 +19,27 @@ import kioskapp.view.CashierController;
 import kioskapp.view.CustomerController;
 import kioskapp.view.QueueDisplayController;
 
-/**
- * Main application class for the Jollibee Kiosk.
- * This class handles the setup of the primary stage and the launching of
- * Customer, Cashier, Admin, and Queue Display views in separate windows.
- */
+import java.util.Objects;
+
+
 public class KioskApp extends Application {
 
-    private Stage primaryStage; // The primary stage for the application
-    private ProductManager productManager; // Manages product data
-    private OrderManager orderManager; // Manages customer orders and queues
+    private Stage primaryStage;
+    private ProductManager productManager;
+    private OrderManager orderManager;
 
-    /**
-     * The main entry point for all JavaFX applications.
-     * Initializes managers and sets up the main navigation scene.
-     *
-     * @param primaryStage The primary stage for this application.
-     */
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("Jobilee - Main Menu");
+        this.primaryStage.setTitle("Jollibee Kiosk System - Main Menu");
+
+        try {
+            Image iconImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/jobilee_logo.png")));
+            this.primaryStage.getIcons().add(iconImage);
+        } catch (Exception e) {
+            System.err.println("Error loading stage icon: " + e.getMessage());
+            // It's okay to continue without an icon, but log the error.
+        }
 
         // Initialize managers
         productManager = new ProductManager();
@@ -54,21 +57,16 @@ public class KioskApp extends Application {
         showMainScene();
     }
 
-    /**
-     * Displays the main navigation scene of the application.
-     * This scene provides buttons to launch Customer, Cashier, Admin, and Queue Display views
-     * in separate windows.
-     */
     private void showMainScene() {
-        VBox root = new VBox(20); // Vertical box with 20px spacing
-        root.setAlignment(Pos.CENTER); // Center align elements
-        root.setPadding(new Insets(50)); // Add padding around the box
+        VBox root = new VBox(20);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(50));
 
         // Create buttons for navigation
         Button customerButton = new Button("Customer View");
         Button cashierButton = new Button("Cashier View");
         Button adminButton = new Button("Admin View");
-        Button queueDisplayButton = new Button("Queue Display"); // New button for queue display
+        Button queueDisplayButton = new Button("Queue Display");
 
         // Set preferred width for buttons for consistent look
         customerButton.setPrefWidth(200);
@@ -94,7 +92,6 @@ public class KioskApp extends Application {
         queueDisplayButton.setOnMouseEntered(e -> queueDisplayButton.setStyle(buttonStyle + buttonHoverStyle));
         queueDisplayButton.setOnMouseExited(e -> queueDisplayButton.setStyle(buttonStyle));
 
-
         // Set actions for buttons to open new windows
         customerButton.setOnAction(e -> openNewWindow("Customer View", () -> new CustomerController(productManager, orderManager).getCustomerScene()));
         cashierButton.setOnAction(e -> openNewWindow("Cashier View", () -> new CashierController(orderManager).getCashierScene()));
@@ -105,31 +102,25 @@ public class KioskApp extends Application {
         root.getChildren().addAll(customerButton, cashierButton, adminButton, queueDisplayButton);
 
         // Create the scene and set it to the primary stage
-        Scene scene = new Scene(root, 600, 450); // Adjusted size for new button
-        // Set a background color for the main scene
-        root.setStyle("-fx-background-color: #fff9ed;"); // Light yellow/cream background
+        Scene scene = new Scene(root, 600, 450);
+        root.setStyle("-fx-background-color: #fff9ed;");
         primaryStage.setScene(scene);
-        primaryStage.show(); // Show the stage
+        primaryStage.show();
     }
 
-    /**
-     * Helper method to open a new window (Stage).
-     *
-     * @param title         The title of the new window.
-     * @param sceneSupplier A functional interface to provide the Scene for the new window.
-     */
     private void openNewWindow(String title, java.util.function.Supplier<javafx.scene.Scene> sceneSupplier) {
         Stage newStage = new Stage();
         newStage.setTitle(title);
         newStage.setScene(sceneSupplier.get());
+        try {
+            Image iconImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/jobilee_logo.png")));
+            newStage.getIcons().add(iconImage);
+        } catch (Exception e) {
+            System.err.println("Error loading icon for new stage: " + e.getMessage());
+        }
         newStage.show();
     }
 
-    /**
-     * The main method to launch the JavaFX application.
-     *
-     * @param args Command line arguments.
-     */
     public static void main(String[] args) {
         launch(args);
     }
